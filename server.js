@@ -18,24 +18,45 @@ app.use(express.urlencoded({extended: true}))
 // ************* ROUTES & ROUTER
 
 // INDEX - GET render all of the books 
-
+app.get("/books", async (req, res) => {
+    // find all of the books
+    let books = await Book.find({})
+    res.render("index.ejs", {
+        books: books.reverse()
+    })
+    // render all of the books to index.ejs
+})
 // NEW - GET for the form to create a new book
-
+app.get("/books/new", (req, res) => {
+    res.render("new.ejs") // render the file
+})
 // CREATE - POST
 app.post("/books", async (req, res) => {
-    if(req.body.completed === "on") {
-        //if checked
-        req.body.completed = true
-    } else {
-        // if not checked
-        req.body.completed = false
-
+    try {
+        if(req.body.completed === "on") {
+            //if checked
+            req.body.completed = true
+        } else {
+            // if not checked
+            req.body.completed = false
+    
+        }
+        let newBook = await Book.create(req.body)
+        res.redirect("/books")
+    } catch (err) {
+        res.send(err)
     }
-    let newBook = await Book.create(req.body)
-    res.send(newBook)
 })
 // SHOW - GET rendering only one book
-
+app.get("/books/:id", async (req, res) => {
+    // find book by _id
+    let foundBook = await Book.findById(req.params.id) // this is the request params object
+    console.log(foundBook)
+    // render show.ejs with the found book
+    res.render("show.ejs", {
+        book: foundBook
+    })
+})
 
 // ************** SERVER LISTENER 
 
